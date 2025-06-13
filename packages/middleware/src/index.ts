@@ -13,7 +13,7 @@ const pool = new Pool();
 
 app.get('/users', async (req: Request, res: Response) => {
   try {
-    const { rows } = await pool.query('SELECT * FROM users');
+    const { rows } = await pool.query('SELECT * FROM "MiddlewareUser"');
     res.json(rows);
   } catch (err) {
     res.status(500).json({ error: 'Failed to fetch users' });
@@ -24,7 +24,7 @@ app.post('/users', async (req: Request, res: Response) => {
   const { name, email } = req.body;
   try {
     const { rows } = await pool.query(
-      'INSERT INTO users (name, email) VALUES ($1, $2) RETURNING *',
+      'INSERT INTO "MiddlewareUser" (name, email) VALUES ($1, $2) RETURNING *',
       [name, email]
     );
     res.status(201).json(rows[0]);
