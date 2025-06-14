@@ -1,34 +1,47 @@
 import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
 import './App.css'
 
 function App() {
   const [count, setCount] = useState(0)
 
   return (
-    <>
-      <div>
-        <a href="https://vite.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.tsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </>
+    <div className="dashboard-container">
+      <aside className="sidebar">
+        <h2>Dashboard</h2>
+        <nav>
+          <ul>
+            <li><a href="#">Home</a></li>
+            <li><a href="#">Analytics</a></li>
+            <li><a href="#">Settings</a></li>
+          </ul>
+        </nav>
+      </aside>
+      <main className="main-content">
+        <header className="header">
+          <h1>Welcome to Your Dashboard</h1>
+        </header>
+        <section className="card-grid">
+          <div className="card dashboard-card">
+            <h3>API Requests</h3>
+            <p>{count}</p>
+            <button onClick={() => setCount((count) => count + 1)}>
+              Simulate Request
+            </button>
+          </div>
+          <div className="card dashboard-card">
+            <h3>Status</h3>
+            <p>All systems operational</p>
+          </div>
+          <div className="card dashboard-card">
+            <h3>Quick Links</h3>
+            <ul>
+              <li><a href="#">Docs</a></li>
+              <li><a href="#">Support</a></li>
+            </ul>
+          </div>
+        </section>
+      </main>
+    </div>
   )
 }
 
