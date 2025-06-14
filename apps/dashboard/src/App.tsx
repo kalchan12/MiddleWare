@@ -6,9 +6,9 @@ function App() {
 
   return (
     <div className="dashboard-container">
-      <aside className="sidebar">
+      <aside className="sidebar" aria-label="Sidebar">
         <h2>Dashboard</h2>
-        <nav>
+        <nav aria-label="Main navigation">
           <ul>
             <li><a href="#">Home</a></li>
             <li><a href="#">Analytics</a></li>
@@ -21,28 +21,34 @@ function App() {
           <h1>Welcome to Your Dashboard</h1>
         </header>
         <section className="card-grid">
-          <div className="card dashboard-card">
-            <h3>API Requests</h3>
+          <DashboardCard title="API Requests">
             <p>{count}</p>
-            <button onClick={() => setCount((count) => count + 1)}>
+            <button onClick={() => setCount(count + 1)}>
               Simulate Request
             </button>
-          </div>
-          <div className="card dashboard-card">
-            <h3>Status</h3>
+          </DashboardCard>
+          <DashboardCard title="Status">
             <p>All systems operational</p>
-          </div>
-          <div className="card dashboard-card">
-            <h3>Quick Links</h3>
+          </DashboardCard>
+          <DashboardCard title="Quick Links">
             <ul>
               <li><a href="#">Docs</a></li>
               <li><a href="#">Support</a></li>
             </ul>
-          </div>
+          </DashboardCard>
         </section>
       </main>
     </div>
   )
+}
+
+function DashboardCard({ title, children }: { title: string; children: React.ReactNode }) {
+  return (
+    <div className="card dashboard-card">
+      <h3>{title}</h3>
+      {children}
+    </div>
+  );
 }
 
 export default App
