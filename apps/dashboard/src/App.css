@@ -46,6 +46,9 @@
   min-height: 100vh;
   background: #f4f6fb;
 }
+.dashboard-container.dark {
+  background: #181a20;
+}
 
 .sidebar {
   width: 220px;
@@ -79,10 +82,19 @@
   color: #eebbc3;
 }
 
+.dashboard-container.dark .sidebar {
+  background: #232946;
+  color: #fff;
+}
+
 .main-content {
   flex: 1;
   padding: 2.5rem 3rem;
 }
+.dashboard-container.dark .main-content {
+  background: #181a20;
+}
+
 .header {
   margin-bottom: 2.5rem;
   border-bottom: 1px solid #eaeaea;
@@ -91,6 +103,9 @@
 .header h1 {
   font-size: 2.2rem;
   color: #232946;
+}
+.dashboard-container.dark .header h1 {
+  color: #fff;
 }
 
 .card-grid {
@@ -113,6 +128,9 @@
   margin-top: 0;
   color: #232946;
 }
+.dashboard-container.dark .dashboard-card h3 {
+  color: #fff;
+}
 .dashboard-card button {
   margin-top: 1rem;
   background: #232946;
@@ -128,9 +146,37 @@
   background: #eebbc3;
   color: #232946;
 }
+.dashboard-container.dark .dashboard-card {
+  background: #232946;
+  color: #fff;
+  box-shadow: 0 2px 12px rgba(35,41,70,0.25);
+}
+.dashboard-container.dark .dashboard-card button {
+  background: #eebbc3;
+  color: #232946;
+}
+.dashboard-container.dark .dashboard-card button:hover {
+  background: #232946;
+  color: #eebbc3;
+  border: 1px solid #eebbc3;
+}
 .dashboard-card ul {
   padding-left: 1.2rem;
 }
 .dashboard-card ul li {
   margin-bottom: 0.5rem;
+}
+.dark-mode-toggle {
+  background: transparent;
+  border: 1px solid #232946;
+  color: #232946;
+  border-radius: 0.5rem;
+  padding: 0.4rem 1rem;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: background 0.2s, color 0.2s;
+}
+.dashboard-container.dark .dark-mode-toggle {
+  border: 1px solid #eebbc3;
+  color: #eebbc3;
 }

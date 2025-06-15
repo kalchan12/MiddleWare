@@ -13,6 +13,7 @@ function App() {
   const [recentActivity, setRecentActivity] = useState<string[]>([])
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const [darkMode, setDarkMode] = useState(false)
 
   useEffect(() => {
     setLoading(true)
@@ -33,10 +34,12 @@ function App() {
   }, [])
 
   return (
-    <div className="dashboard-container">
+    <div className={`dashboard-container${darkMode ? ' dark' : ''}`}>
       <Sidebar />
       <main className="main-content">
-        <Header title="Welcome to Your Dashboard" />
+        <Header title="Welcome to Your Dashboard">
+          <DarkModeToggle darkMode={darkMode} setDarkMode={setDarkMode} />
+        </Header>
         <section className="card-grid">
           <DashboardCard title="API Requests">
             <p>{count}</p>
@@ -71,6 +74,19 @@ function App() {
   )
 }
 
+function DarkModeToggle({ darkMode, setDarkMode }: { darkMode: boolean; setDarkMode: (v: boolean) => void }) {
+  return (
+    <button
+      className="dark-mode-toggle"
+      onClick={() => setDarkMode(!darkMode)}
+      aria-label="Toggle dark mode"
+      style={{ marginLeft: '1rem' }}
+    >
+      {darkMode ? '🌙 Dark' : '☀️ Light'}
+    </button>
+  )
+}
+
 function Sidebar() {
   return (
     <aside className="sidebar" aria-label="Sidebar">
@@ -86,10 +102,11 @@ function Sidebar() {
   )
 }
 
-function Header({ title }: { title: string }) {
+function Header({ title, children }: { title: string; children?: ReactNode }) {
   return (
-    <header className="header">
+    <header className="header" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
       <h1>{title}</h1>
+      {children}
     </header>
   )
 }
