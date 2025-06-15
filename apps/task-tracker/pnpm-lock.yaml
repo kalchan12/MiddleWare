@@ -39,6 +39,9 @@ importers:
       eslint-plugin-react-refresh:
         specifier: ^0.4.19
         version: 0.4.20(eslint@9.29.0)
+      eslint-plugin-tailwindcss:
+        specifier: ^3.18.0
+        version: 3.18.0(tailwindcss@4.1.10)
       globals:
         specifier: ^16.0.0
         version: 16.2.0
@@ -696,6 +699,12 @@ packages:
     resolution: {integrity: sha512-XpbHQ2q5gUF8BGOX4dHe+71qoirYMhApEPZ7sfhF/dNnOF1UXnCMGZf79SFTBO7Bz5YEIT4TMieSlJBWhP9WBA==}
     peerDependencies:
       eslint: '>=8.40'
+
+  eslint-plugin-tailwindcss@3.18.0:
+    resolution: {integrity: sha512-PQDU4ZMzFH0eb2DrfHPpbgo87Zgg2EXSMOj1NSfzdZm+aJzpuwGerfowMIaVehSREEa0idbf/eoNYAOHSJoDAQ==}
+    engines: {node: '>=18.12.0'}
+    peerDependencies:
+      tailwindcss: ^3.4.0
 
   eslint-scope@8.4.0:
     resolution: {integrity: sha512-sNXOfKCn74rt8RICKMvJS7XKV/Xk9kA7DyJr8mJik3S7Cwgy3qlkkmyS2uQB3jiJg6VNdZd/pDBJu0nvG2NlTg==}
@@ -1748,6 +1757,12 @@ snapshots:
   eslint-plugin-react-refresh@0.4.20(eslint@9.29.0):
     dependencies:
       eslint: 9.29.0
+
+  eslint-plugin-tailwindcss@3.18.0(tailwindcss@4.1.10):
+    dependencies:
+      fast-glob: 3.3.3
+      postcss: 8.5.5
+      tailwindcss: 4.1.10
 
   eslint-scope@8.4.0:
     dependencies:
