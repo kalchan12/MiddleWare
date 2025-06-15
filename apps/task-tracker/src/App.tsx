@@ -1,22 +1,21 @@
 
 
-import React, { useEffect, useState, useCallback } from 'react';
 
-// Import Google Font once in index.html or main entry, not in component
+import React, { useEffect, useState, useCallback, FormEvent, ChangeEvent, KeyboardEvent } from 'react';
 
+// Types
 interface Task {
   id: number;
   title: string;
   completed: boolean;
 }
-
-const API_URL = 'http://localhost:3000/tasks'; // Adjust if your middleware runs on a different port or route
-
-
-
 type Filter = 'all' | 'active' | 'completed';
 
+// Constants
+const API_URL = 'http://localhost:3000/tasks'; // Adjust if your middleware runs on a different port or route
+
 const App: React.FC = () => {
+  // State
   const [tasks, setTasks] = useState<Task[]>([]);
   const [newTask, setNewTask] = useState('');
   const [loading, setLoading] = useState(false);
@@ -24,14 +23,21 @@ const App: React.FC = () => {
   const [editingId, setEditingId] = useState<number | null>(null);
   const [editingTitle, setEditingTitle] = useState('');
 
-  // Fetch tasks from API
+
+  // Fetch tasks from API (optimized: only update if changed)
   const fetchTasks = useCallback(async () => {
     setLoading(true);
     try {
       const res = await fetch(API_URL);
       if (!res.ok) throw new Error('Failed to fetch tasks');
-      const data = await res.json();
-      setTasks(data);
+      const data: Task[] = await res.json();
+      setTasks(prev => {
+        // Only update if data actually changed (shallow compare)
+        if (prev.length === data.length && prev.every((t, i) => t.id === data[i].id && t.title === data[i].title && t.completed === data[i].completed)) {
+          return prev;
+        }
+        return data;
+      });
     } catch (err) {
       setTasks([]);
     } finally {
@@ -41,27 +47,42 @@ const App: React.FC = () => {
 
   useEffect(() => {
     fetchTasks();
-  }, [fetchTasks]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
-  // Add a new task
-  const addTask = useCallback(async (e: React.FormEvent) => {
+
+  // Add a new task (optimized: optimistic UI update)
+  const addTask = useCallback(async (e: FormEvent) => {
     e.preventDefault();
     if (!newTask.trim()) return;
+    const optimisticTask: Task = {
+      id: Date.now(),
+      title: newTask,
+      completed: false
+    };
+    setTasks(prev => [optimisticTask, ...prev]);
+    setNewTask('');
     try {
       const res = await fetch(API_URL, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ title: newTask })
+        body: JSON.stringify({ title: optimisticTask.title })
       });
       if (res.ok) {
-        setNewTask('');
         fetchTasks();
+      } else {
+        // Rollback if failed
+        setTasks(prev => prev.filter(t => t.id !== optimisticTask.id));
       }
-    } catch {}
+    } catch {
+      setTasks(prev => prev.filter(t => t.id !== optimisticTask.id));
+    }
   }, [newTask, fetchTasks]);
 
-  // Toggle task completion
+
+  // Toggle task completion (optimized: optimistic UI update)
   const toggleTask = useCallback(async (id: number, completed: boolean) => {
+    setTasks(prev => prev.map(t => t.id === id ? { ...t, completed: !completed } : t));
     try {
       await fetch(`${API_URL}/${id}`, {
         method: 'PATCH',
@@ -69,16 +90,23 @@ const App: React.FC = () => {
         body: JSON.stringify({ completed: !completed })
       });
       fetchTasks();
-    } catch {}
+    } catch {
+      // Rollback if needed (optional)
+    }
   }, [fetchTasks]);
 
-  // Delete a task
+
+  // Delete a task (optimized: optimistic UI update)
   const deleteTask = useCallback(async (id: number) => {
+    const prevTasks = tasks;
+    setTasks(prev => prev.filter(t => t.id !== id));
     try {
       await fetch(`${API_URL}/${id}`, { method: 'DELETE' });
       fetchTasks();
-    } catch {}
-  }, [fetchTasks]);
+    } catch {
+      setTasks(prevTasks); // Rollback if failed
+    }
+  }, [fetchTasks, tasks]);
 
   // Edit a task title
   const startEdit = (id: number, title: string) => {
@@ -91,26 +119,48 @@ const App: React.FC = () => {
     setEditingTitle('');
   };
 
+  const handleEditChange = (e: ChangeEvent<HTMLInputElement>) => {
+    setEditingTitle(e.target.value);
+  };
+
+  const handleEditKeyDown = (e: KeyboardEvent<HTMLInputElement>, id: number) => {
+    if (e.key === 'Enter') saveEdit(id);
+    if (e.key === 'Escape') cancelEdit();
+  };
+
+
+  // Save edit (optimized: optimistic UI update)
   const saveEdit = async (id: number) => {
     if (!editingTitle.trim()) return;
+    const prevTasks = tasks;
+    setTasks(prev => prev.map(t => t.id === id ? { ...t, title: editingTitle } : t));
+    setEditingId(null);
+    setEditingTitle('');
     try {
       await fetch(`${API_URL}/${id}`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ title: editingTitle })
       });
-      setEditingId(null);
-      setEditingTitle('');
       fetchTasks();
-    } catch {}
+    } catch {
+      setTasks(prevTasks); // Rollback if failed
+    }
   };
 
-  // Clear completed tasks
-  const clearCompleted = async () => {
+
+  // Clear completed tasks (optimized: optimistic UI update)
+  const clearCompleted = useCallback(async () => {
     const completedIds = tasks.filter(t => t.completed).map(t => t.id);
-    await Promise.all(completedIds.map(id => fetch(`${API_URL}/${id}`, { method: 'DELETE' })));
-    fetchTasks();
-  };
+    const prevTasks = tasks;
+    setTasks(prev => prev.filter(t => !t.completed));
+    try {
+      await Promise.all(completedIds.map(id => fetch(`${API_URL}/${id}`, { method: 'DELETE' })));
+      fetchTasks();
+    } catch {
+      setTasks(prevTasks); // Rollback if failed
+    }
+  }, [tasks, fetchTasks]);
 
   // Filtered tasks
   const filteredTasks = tasks.filter(task => {
@@ -239,11 +289,8 @@ const App: React.FC = () => {
                 <>
                   <input
                     value={editingTitle}
-                    onChange={e => setEditingTitle(e.target.value)}
-                    onKeyDown={e => {
-                      if (e.key === 'Enter') saveEdit(task.id);
-                      if (e.key === 'Escape') cancelEdit();
-                    }}
+                    onChange={handleEditChange}
+                    onKeyDown={e => handleEditKeyDown(e, task.id)}
                     autoFocus
                     style={{
                       flex: 1,
