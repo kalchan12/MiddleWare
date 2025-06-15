@@ -42,11 +42,15 @@ const App: React.FC = () => {
 
   return (
     <div className="App">
-      <button onClick={() => setDarkMode(!darkMode)}>
-        Toggle Dark Mode
-      </button>
-      <Header />
-      <UserList />
+      <header>
+        <button onClick={() => setDarkMode(!darkMode)}>
+          {darkMode ? 'Switch to Light Mode' : 'Switch to Dark Mode'}
+        </button>
+      </header>
+      <main>
+        <Header />
+        <UserList />
+      </main>
     </div>
   );
 };
