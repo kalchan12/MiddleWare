@@ -1,5 +1,12 @@
 import { useState, useEffect } from 'react'
+import type { ReactNode } from 'react'
 import './App.css'
+
+const NAV_LINKS = [
+  { label: 'Home', href: '#' },
+  { label: 'Analytics', href: '#' },
+  { label: 'Settings', href: '#' },
+]
 
 function App() {
   const [count, setCount] = useState(0)
@@ -10,7 +17,6 @@ function App() {
   useEffect(() => {
     setLoading(true)
     setError(null)
-    // Replace the URL below with your actual middleware API endpoint
     fetch('http://localhost:3000/api/activity')
       .then((res) => {
         if (!res.ok) throw new Error('Failed to fetch activity')
@@ -28,20 +34,9 @@ function App() {
 
   return (
     <div className="dashboard-container">
-      <aside className="sidebar" aria-label="Sidebar">
-        <h2>Dashboard</h2>
-        <nav aria-label="Main navigation">
-          <ul>
-            <li><a href="#">Home</a></li>
-            <li><a href="#">Analytics</a></li>
-            <li><a href="#">Settings</a></li>
-          </ul>
-        </nav>
-      </aside>
+      <Sidebar />
       <main className="main-content">
-        <header className="header">
-          <h1>Welcome to Your Dashboard</h1>
-        </header>
+        <Header title="Welcome to Your Dashboard" />
         <section className="card-grid">
           <DashboardCard title="API Requests">
             <p>{count}</p>
@@ -76,13 +71,36 @@ function App() {
   )
 }
 
-function DashboardCard({ title, children }: { title: string; children: React.ReactNode }) {
+function Sidebar() {
+  return (
+    <aside className="sidebar" aria-label="Sidebar">
+      <h2>Dashboard</h2>
+      <nav aria-label="Main navigation">
+        <ul>
+          {NAV_LINKS.map((link) => (
+            <li key={link.label}><a href={link.href}>{link.label}</a></li>
+          ))}
+        </ul>
+      </nav>
+    </aside>
+  )
+}
+
+function Header({ title }: { title: string }) {
+  return (
+    <header className="header">
+      <h1>{title}</h1>
+    </header>
+  )
+}
+
+function DashboardCard({ title, children }: { title: string; children: ReactNode }) {
   return (
     <div className="card dashboard-card">
       <h3>{title}</h3>
       {children}
     </div>
-  );
+  )
 }
 
 export default App
