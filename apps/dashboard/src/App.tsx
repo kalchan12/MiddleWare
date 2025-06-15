@@ -8,6 +8,14 @@ const NAV_LINKS = [
   { label: 'Settings', href: '#' },
 ]
 
+// Utility: fetch recent activity (separated for clarity and testability)
+async function fetchRecentActivity(): Promise<string[]> {
+  const res = await fetch('http://localhost:3000/api/activity')
+  if (!res.ok) throw new Error('Failed to fetch activity')
+  const data = await res.json()
+  return data.activities || []
+}
+
 function App() {
   const [count, setCount] = useState(0)
   const [recentActivity, setRecentActivity] = useState<string[]>([])
@@ -18,19 +26,10 @@ function App() {
   useEffect(() => {
     setLoading(true)
     setError(null)
-    fetch('http://localhost:3000/api/activity')
-      .then((res) => {
-        if (!res.ok) throw new Error('Failed to fetch activity')
-        return res.json()
-      })
-      .then((data) => {
-        setRecentActivity(data.activities || [])
-        setLoading(false)
-      })
-      .catch((err) => {
-        setError(err.message)
-        setLoading(false)
-      })
+    fetchRecentActivity()
+      .then(setRecentActivity)
+      .catch((err) => setError(err.message))
+      .finally(() => setLoading(false))
   }, [])
 
   return (
