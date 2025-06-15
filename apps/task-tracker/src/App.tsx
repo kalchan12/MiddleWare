@@ -1,7 +1,8 @@
 
 
 
-import React, { useEffect, useState, useCallback, FormEvent, ChangeEvent, KeyboardEvent } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
+import type { FormEvent, ChangeEvent, KeyboardEvent } from 'react';
 
 // Types
 interface Task {
@@ -170,120 +171,49 @@ const App: React.FC = () => {
   });
 
   return (
-    <div style={{
-      maxWidth: 520,
-      margin: '3rem auto',
-      fontFamily: 'Inter, sans-serif',
-      background: 'linear-gradient(135deg, #f8fafc 0%, #e0e7ef 100%)',
-      borderRadius: 20,
-      boxShadow: '0 8px 32px rgba(44,62,80,0.10)',
-      padding: 36,
-      border: '1.5px solid #e2e8f0',
-      minHeight: 480,
-    }}>
-      <h1 style={{
-        textAlign: 'center',
-        color: '#2563eb',
-        marginBottom: 28,
-        letterSpacing: 1,
-        fontWeight: 700,
-        fontSize: 32,
-        textShadow: '0 2px 8px rgba(49,130,206,0.08)'
-      }}>📝 Task Tracker</h1>
-      <form onSubmit={addTask} style={{
-        display: 'flex',
-        gap: 14,
-        marginBottom: 28,
-        background: '#fff',
-        borderRadius: 10,
-        boxShadow: '0 1px 4px rgba(0,0,0,0.04)',
-        padding: 8,
-        border: '1px solid #e2e8f0',
-      }}>
+    <div className="max-w-xl mx-auto mt-12 font-sans bg-gradient-to-br from-slate-50 to-blue-100 rounded-2xl shadow-2xl p-9 border border-slate-200 min-h-[480px]">
+      <h1 className="text-center text-blue-600 mb-7 tracking-wide font-bold text-3xl drop-shadow">📝 Task Tracker</h1>
+      <form onSubmit={addTask} className="flex gap-3.5 mb-7 bg-white rounded-xl shadow p-2 border border-slate-200">
         <input
           value={newTask}
           onChange={e => setNewTask(e.target.value)}
           placeholder="Add a new task..."
-          style={{
-            flex: 1,
-            padding: '12px 16px',
-            border: 'none',
-            borderRadius: 8,
-            fontSize: 17,
-            outline: 'none',
-            background: '#f1f5f9',
-            fontWeight: 500,
-            color: '#2d3748',
-            boxShadow: '0 1px 2px rgba(0,0,0,0.02)',
-          }}
+          className="flex-1 px-4 py-3 border-none rounded-lg text-lg outline-none bg-slate-100 font-medium text-slate-800 shadow-sm"
         />
-        <button type="submit" style={{
-          background: 'linear-gradient(90deg, #2563eb 60%, #60a5fa 100%)',
-          color: '#fff',
-          border: 'none',
-          borderRadius: 8,
-          padding: '12px 28px',
-          fontWeight: 700,
-          fontSize: 17,
-          cursor: 'pointer',
-          boxShadow: '0 2px 8px rgba(49,130,206,0.10)',
-          transition: 'background 0.2s',
-        }}>Add</button>
+        <button type="submit" className="bg-gradient-to-r from-blue-600 to-blue-400 text-white border-none rounded-lg px-7 py-3 font-bold text-lg cursor-pointer shadow transition-colors">Add</button>
       </form>
       {/* Filter Buttons */}
-      <div style={{ display: 'flex', justifyContent: 'center', gap: 12, marginBottom: 18 }}>
-        <button type="button" onClick={() => setFilter('all')} style={{
-          background: filter === 'all' ? '#2563eb' : '#e2e8f0',
-          color: filter === 'all' ? '#fff' : '#2d3748',
-          border: 'none', borderRadius: 7, padding: '7px 18px', fontWeight: 600, fontSize: 15, cursor: 'pointer',
-        }}>All</button>
-        <button type="button" onClick={() => setFilter('active')} style={{
-          background: filter === 'active' ? '#2563eb' : '#e2e8f0',
-          color: filter === 'active' ? '#fff' : '#2d3748',
-          border: 'none', borderRadius: 7, padding: '7px 18px', fontWeight: 600, fontSize: 15, cursor: 'pointer',
-        }}>Active</button>
-        <button type="button" onClick={() => setFilter('completed')} style={{
-          background: filter === 'completed' ? '#2563eb' : '#e2e8f0',
-          color: filter === 'completed' ? '#fff' : '#2d3748',
-          border: 'none', borderRadius: 7, padding: '7px 18px', fontWeight: 600, fontSize: 15, cursor: 'pointer',
-        }}>Completed</button>
+      <div className="flex justify-center gap-3 mb-4.5">
+        <button type="button" onClick={() => setFilter('all')} className={`px-4 py-1.5 rounded-md font-semibold text-sm cursor-pointer border-none ${filter === 'all' ? 'bg-blue-600 text-white' : 'bg-slate-200 text-slate-800'}`}>All</button>
+        <button type="button" onClick={() => setFilter('active')} className={`px-4 py-1.5 rounded-md font-semibold text-sm cursor-pointer border-none ${filter === 'active' ? 'bg-blue-600 text-white' : 'bg-slate-200 text-slate-800'}`}>Active</button>
+        <button type="button" onClick={() => setFilter('completed')} className={`px-4 py-1.5 rounded-md font-semibold text-sm cursor-pointer border-none ${filter === 'completed' ? 'bg-blue-600 text-white' : 'bg-slate-200 text-slate-800'}`}>Completed</button>
       </div>
       {/* Clear Completed Button */}
-      <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: 10 }}>
-        <button type="button" onClick={clearCompleted} style={{
-          background: '#e53e3e', color: '#fff', border: 'none', borderRadius: 7, padding: '7px 18px', fontWeight: 600, fontSize: 15, cursor: 'pointer',
-          opacity: tasks.some(t => t.completed) ? 1 : 0.5,
-          pointerEvents: tasks.some(t => t.completed) ? 'auto' : 'none',
-        }}>Clear Completed</button>
+      <div className="flex justify-end mb-2.5">
+        <button
+          type="button"
+          onClick={clearCompleted}
+          className={`bg-red-600 text-white border-none rounded-md px-4 py-1.5 font-semibold text-sm cursor-pointer transition-opacity ${tasks.some(t => t.completed) ? '' : 'opacity-50 pointer-events-none'}`}
+        >
+          Clear Completed
+        </button>
       </div>
       {loading ? (
-        <p style={{ textAlign: 'center', color: '#64748b', fontWeight: 500, fontSize: 18 }}>Loading...</p>
+        <p className="text-center text-slate-500 font-medium text-lg">Loading...</p>
       ) : filteredTasks.length === 0 ? (
-        <p style={{ textAlign: 'center', color: '#a0aec0', fontWeight: 500, fontSize: 18 }}>No tasks found for this filter.</p>
+        <p className="text-center text-slate-400 font-medium text-lg">No tasks found for this filter.</p>
       ) : (
-        <ul style={{ listStyle: 'none', padding: 0, margin: 0 }}>
+        <ul className="list-none p-0 m-0">
           {filteredTasks.map(task => (
             <li
               key={task.id}
-              style={{
-                display: 'flex',
-                alignItems: 'center',
-                gap: 14,
-                margin: '12px 0',
-                background: task.completed ? 'linear-gradient(90deg, #e6fffa 0%, #f0fff4 100%)' : '#fff',
-                borderRadius: 10,
-                padding: '12px 16px',
-                boxShadow: '0 2px 8px rgba(0,0,0,0.04)',
-                border: task.completed ? '2px solid #38a169' : '2px solid #e2e8f0',
-                opacity: task.completed ? 0.7 : 1,
-                transition: 'border 0.2s, opacity 0.2s',
-              }}
+              className={`flex items-center gap-3.5 my-3 bg-white rounded-xl py-3 px-4 shadow border-2 transition-all ${task.completed ? 'bg-gradient-to-r from-teal-100 to-green-50 border-green-500 opacity-70' : 'border-slate-200'} `}
             >
               <input
                 type="checkbox"
                 checked={task.completed}
                 onChange={() => toggleTask(task.id, task.completed)}
-                style={{ width: 22, height: 22, accentColor: '#2563eb', cursor: 'pointer' }}
+                className="w-[22px] h-[22px] accent-blue-600 cursor-pointer"
               />
               {editingId === task.id ? (
                 <>
@@ -292,30 +222,14 @@ const App: React.FC = () => {
                     onChange={handleEditChange}
                     onKeyDown={e => handleEditKeyDown(e, task.id)}
                     autoFocus
-                    style={{
-                      flex: 1,
-                      fontSize: 18,
-                      border: '1px solid #cbd5e1',
-                      borderRadius: 6,
-                      padding: '6px 10px',
-                      marginRight: 8,
-                    }}
+                    className="flex-1 text-lg border border-slate-300 rounded px-2 py-1 mr-2"
                   />
-                  <button onClick={() => saveEdit(task.id)} style={{ background: '#38a169', color: '#fff', border: 'none', borderRadius: 6, padding: '6px 14px', fontWeight: 500, fontSize: 15, cursor: 'pointer', marginRight: 4 }}>Save</button>
-                  <button onClick={cancelEdit} style={{ background: '#e2e8f0', color: '#2d3748', border: 'none', borderRadius: 6, padding: '6px 14px', fontWeight: 500, fontSize: 15, cursor: 'pointer' }}>Cancel</button>
+                  <button onClick={() => saveEdit(task.id)} className="bg-green-600 text-white border-none rounded px-3 py-1 font-medium text-sm cursor-pointer mr-1">Save</button>
+                  <button onClick={cancelEdit} className="bg-slate-200 text-slate-800 border-none rounded px-3 py-1 font-medium text-sm cursor-pointer">Cancel</button>
                 </>
               ) : (
                 <span
-                  style={{
-                    textDecoration: task.completed ? 'line-through' : undefined,
-                    color: task.completed ? '#38a169' : '#2d3748',
-                    fontSize: 18,
-                    flex: 1,
-                    wordBreak: 'break-word',
-                    fontWeight: 600,
-                    letterSpacing: 0.2,
-                    cursor: 'pointer',
-                  }}
+                  className={`flex-1 break-words font-semibold tracking-wide text-lg cursor-pointer ${task.completed ? 'line-through text-green-600' : 'text-slate-800'}`}
                   onDoubleClick={() => startEdit(task.id, task.title)}
                   title="Double click to edit"
                 >
@@ -324,19 +238,7 @@ const App: React.FC = () => {
               )}
               <button
                 onClick={() => deleteTask(task.id)}
-                style={{
-                  background: 'linear-gradient(90deg, #f87171 60%, #fbbf24 100%)',
-                  color: '#fff',
-                  border: 'none',
-                  borderRadius: 7,
-                  padding: '7px 18px',
-                  fontWeight: 600,
-                  fontSize: 15,
-                  cursor: 'pointer',
-                  marginLeft: 8,
-                  boxShadow: '0 1px 4px rgba(251,191,36,0.10)',
-                  transition: 'background 0.2s',
-                }}
+                className="bg-gradient-to-r from-red-400 to-yellow-300 text-white border-none rounded-md px-4 py-1.5 font-semibold text-sm cursor-pointer ml-2 shadow transition-colors"
                 title="Delete task"
               >
                 Delete
