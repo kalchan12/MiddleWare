@@ -34,8 +34,17 @@ const UserList: React.FC = () => {
 };
 
 const App: React.FC = () => {
+  const [darkMode, setDarkMode] = useState(false);
+
+  useEffect(() => {
+    document.documentElement.classList.toggle('dark', darkMode);
+  }, [darkMode]);
+
   return (
     <div className="App">
+      <button onClick={() => setDarkMode(!darkMode)}>
+        Toggle Dark Mode
+      </button>
       <Header />
       <UserList />
     </div>
