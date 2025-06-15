@@ -13,10 +13,16 @@ interface Task {
 const API_URL = 'http://localhost:3000/tasks'; // Adjust if your middleware runs on a different port or route
 
 
+
+type Filter = 'all' | 'active' | 'completed';
+
 const App: React.FC = () => {
   const [tasks, setTasks] = useState<Task[]>([]);
   const [newTask, setNewTask] = useState('');
   const [loading, setLoading] = useState(false);
+  const [filter, setFilter] = useState<Filter>('all');
+  const [editingId, setEditingId] = useState<number | null>(null);
+  const [editingTitle, setEditingTitle] = useState('');
 
   // Fetch tasks from API
   const fetchTasks = useCallback(async () => {
@@ -27,7 +33,6 @@ const App: React.FC = () => {
       const data = await res.json();
       setTasks(data);
     } catch (err) {
-      // Optionally show error to user
       setTasks([]);
     } finally {
       setLoading(false);
@@ -74,6 +79,45 @@ const App: React.FC = () => {
       fetchTasks();
     } catch {}
   }, [fetchTasks]);
+
+  // Edit a task title
+  const startEdit = (id: number, title: string) => {
+    setEditingId(id);
+    setEditingTitle(title);
+  };
+
+  const cancelEdit = () => {
+    setEditingId(null);
+    setEditingTitle('');
+  };
+
+  const saveEdit = async (id: number) => {
+    if (!editingTitle.trim()) return;
+    try {
+      await fetch(`${API_URL}/${id}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ title: editingTitle })
+      });
+      setEditingId(null);
+      setEditingTitle('');
+      fetchTasks();
+    } catch {}
+  };
+
+  // Clear completed tasks
+  const clearCompleted = async () => {
+    const completedIds = tasks.filter(t => t.completed).map(t => t.id);
+    await Promise.all(completedIds.map(id => fetch(`${API_URL}/${id}`, { method: 'DELETE' })));
+    fetchTasks();
+  };
+
+  // Filtered tasks
+  const filteredTasks = tasks.filter(task => {
+    if (filter === 'active') return !task.completed;
+    if (filter === 'completed') return task.completed;
+    return true;
+  });
 
   return (
     <div style={{
@@ -136,13 +180,39 @@ const App: React.FC = () => {
           transition: 'background 0.2s',
         }}>Add</button>
       </form>
+      {/* Filter Buttons */}
+      <div style={{ display: 'flex', justifyContent: 'center', gap: 12, marginBottom: 18 }}>
+        <button type="button" onClick={() => setFilter('all')} style={{
+          background: filter === 'all' ? '#2563eb' : '#e2e8f0',
+          color: filter === 'all' ? '#fff' : '#2d3748',
+          border: 'none', borderRadius: 7, padding: '7px 18px', fontWeight: 600, fontSize: 15, cursor: 'pointer',
+        }}>All</button>
+        <button type="button" onClick={() => setFilter('active')} style={{
+          background: filter === 'active' ? '#2563eb' : '#e2e8f0',
+          color: filter === 'active' ? '#fff' : '#2d3748',
+          border: 'none', borderRadius: 7, padding: '7px 18px', fontWeight: 600, fontSize: 15, cursor: 'pointer',
+        }}>Active</button>
+        <button type="button" onClick={() => setFilter('completed')} style={{
+          background: filter === 'completed' ? '#2563eb' : '#e2e8f0',
+          color: filter === 'completed' ? '#fff' : '#2d3748',
+          border: 'none', borderRadius: 7, padding: '7px 18px', fontWeight: 600, fontSize: 15, cursor: 'pointer',
+        }}>Completed</button>
+      </div>
+      {/* Clear Completed Button */}
+      <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: 10 }}>
+        <button type="button" onClick={clearCompleted} style={{
+          background: '#e53e3e', color: '#fff', border: 'none', borderRadius: 7, padding: '7px 18px', fontWeight: 600, fontSize: 15, cursor: 'pointer',
+          opacity: tasks.some(t => t.completed) ? 1 : 0.5,
+          pointerEvents: tasks.some(t => t.completed) ? 'auto' : 'none',
+        }}>Clear Completed</button>
+      </div>
       {loading ? (
         <p style={{ textAlign: 'center', color: '#64748b', fontWeight: 500, fontSize: 18 }}>Loading...</p>
-      ) : tasks.length === 0 ? (
-        <p style={{ textAlign: 'center', color: '#a0aec0', fontWeight: 500, fontSize: 18 }}>No tasks yet. Add your first task!</p>
+      ) : filteredTasks.length === 0 ? (
+        <p style={{ textAlign: 'center', color: '#a0aec0', fontWeight: 500, fontSize: 18 }}>No tasks found for this filter.</p>
       ) : (
         <ul style={{ listStyle: 'none', padding: 0, margin: 0 }}>
-          {tasks.map(task => (
+          {filteredTasks.map(task => (
             <li
               key={task.id}
               style={{
@@ -165,19 +235,46 @@ const App: React.FC = () => {
                 onChange={() => toggleTask(task.id, task.completed)}
                 style={{ width: 22, height: 22, accentColor: '#2563eb', cursor: 'pointer' }}
               />
-              <span
-                style={{
-                  textDecoration: task.completed ? 'line-through' : undefined,
-                  color: task.completed ? '#38a169' : '#2d3748',
-                  fontSize: 18,
-                  flex: 1,
-                  wordBreak: 'break-word',
-                  fontWeight: 600,
-                  letterSpacing: 0.2,
-                }}
-              >
-                {task.title}
-              </span>
+              {editingId === task.id ? (
+                <>
+                  <input
+                    value={editingTitle}
+                    onChange={e => setEditingTitle(e.target.value)}
+                    onKeyDown={e => {
+                      if (e.key === 'Enter') saveEdit(task.id);
+                      if (e.key === 'Escape') cancelEdit();
+                    }}
+                    autoFocus
+                    style={{
+                      flex: 1,
+                      fontSize: 18,
+                      border: '1px solid #cbd5e1',
+                      borderRadius: 6,
+                      padding: '6px 10px',
+                      marginRight: 8,
+                    }}
+                  />
+                  <button onClick={() => saveEdit(task.id)} style={{ background: '#38a169', color: '#fff', border: 'none', borderRadius: 6, padding: '6px 14px', fontWeight: 500, fontSize: 15, cursor: 'pointer', marginRight: 4 }}>Save</button>
+                  <button onClick={cancelEdit} style={{ background: '#e2e8f0', color: '#2d3748', border: 'none', borderRadius: 6, padding: '6px 14px', fontWeight: 500, fontSize: 15, cursor: 'pointer' }}>Cancel</button>
+                </>
+              ) : (
+                <span
+                  style={{
+                    textDecoration: task.completed ? 'line-through' : undefined,
+                    color: task.completed ? '#38a169' : '#2d3748',
+                    fontSize: 18,
+                    flex: 1,
+                    wordBreak: 'break-word',
+                    fontWeight: 600,
+                    letterSpacing: 0.2,
+                    cursor: 'pointer',
+                  }}
+                  onDoubleClick={() => startEdit(task.id, task.title)}
+                  title="Double click to edit"
+                >
+                  {task.title}
+                </span>
+              )}
               <button
                 onClick={() => deleteTask(task.id)}
                 style={{
