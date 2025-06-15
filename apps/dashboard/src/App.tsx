@@ -1,8 +1,30 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import './App.css'
 
 function App() {
   const [count, setCount] = useState(0)
+  const [recentActivity, setRecentActivity] = useState<string[]>([])
+  const [loading, setLoading] = useState(false)
+  const [error, setError] = useState<string | null>(null)
+
+  useEffect(() => {
+    setLoading(true)
+    setError(null)
+    // Replace the URL below with your actual middleware API endpoint
+    fetch('http://localhost:3000/api/activity')
+      .then((res) => {
+        if (!res.ok) throw new Error('Failed to fetch activity')
+        return res.json()
+      })
+      .then((data) => {
+        setRecentActivity(data.activities || [])
+        setLoading(false)
+      })
+      .catch((err) => {
+        setError(err.message)
+        setLoading(false)
+      })
+  }, [])
 
   return (
     <div className="dashboard-container">
@@ -35,6 +57,18 @@ function App() {
               <li><a href="#">Docs</a></li>
               <li><a href="#">Support</a></li>
             </ul>
+          </DashboardCard>
+          <DashboardCard title="Recent API Activity">
+            {loading && <p>Loading...</p>}
+            {error && <p style={{ color: 'red' }}>{error}</p>}
+            {!loading && !error && (
+              <ul>
+                {recentActivity.length === 0 && <li>No recent activity.</li>}
+                {recentActivity.map((item, idx) => (
+                  <li key={idx}>{item}</li>
+                ))}
+              </ul>
+            )}
           </DashboardCard>
         </section>
       </main>
