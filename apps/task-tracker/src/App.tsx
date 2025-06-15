@@ -1,11 +1,8 @@
 
-import React, { useEffect, useState } from 'react';
 
-// Optionally import a Google Font for a modern look
-const fontLink = document.createElement('link');
-fontLink.rel = 'stylesheet';
-fontLink.href = 'https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap';
-document.head.appendChild(fontLink);
+import React, { useEffect, useState, useCallback } from 'react';
+
+// Import Google Font once in index.html or main entry, not in component
 
 interface Task {
   id: number;
@@ -15,54 +12,68 @@ interface Task {
 
 const API_URL = 'http://localhost:3000/tasks'; // Adjust if your middleware runs on a different port or route
 
+
 const App: React.FC = () => {
   const [tasks, setTasks] = useState<Task[]>([]);
   const [newTask, setNewTask] = useState('');
   const [loading, setLoading] = useState(false);
 
-  const fetchTasks = async () => {
+  // Fetch tasks from API
+  const fetchTasks = useCallback(async () => {
     setLoading(true);
     try {
       const res = await fetch(API_URL);
+      if (!res.ok) throw new Error('Failed to fetch tasks');
       const data = await res.json();
       setTasks(data);
     } catch (err) {
-      // Handle error
+      // Optionally show error to user
+      setTasks([]);
+    } finally {
+      setLoading(false);
     }
-    setLoading(false);
-  };
+  }, []);
 
   useEffect(() => {
     fetchTasks();
-  }, []);
+  }, [fetchTasks]);
 
-  const addTask = async (e: React.FormEvent) => {
+  // Add a new task
+  const addTask = useCallback(async (e: React.FormEvent) => {
     e.preventDefault();
     if (!newTask.trim()) return;
-    const res = await fetch(API_URL, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ title: newTask })
-    });
-    if (res.ok) {
-      setNewTask('');
+    try {
+      const res = await fetch(API_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ title: newTask })
+      });
+      if (res.ok) {
+        setNewTask('');
+        fetchTasks();
+      }
+    } catch {}
+  }, [newTask, fetchTasks]);
+
+  // Toggle task completion
+  const toggleTask = useCallback(async (id: number, completed: boolean) => {
+    try {
+      await fetch(`${API_URL}/${id}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ completed: !completed })
+      });
       fetchTasks();
-    }
-  };
+    } catch {}
+  }, [fetchTasks]);
 
-  const toggleTask = async (id: number, completed: boolean) => {
-    await fetch(`${API_URL}/${id}`, {
-      method: 'PATCH',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ completed: !completed })
-    });
-    fetchTasks();
-  };
-
-  const deleteTask = async (id: number) => {
-    await fetch(`${API_URL}/${id}`, { method: 'DELETE' });
-    fetchTasks();
-  };
+  // Delete a task
+  const deleteTask = useCallback(async (id: number) => {
+    try {
+      await fetch(`${API_URL}/${id}`, { method: 'DELETE' });
+      fetchTasks();
+    } catch {}
+  }, [fetchTasks]);
 
   return (
     <div style={{
