@@ -4,6 +4,25 @@ const Header: React.FC = () => {
   return <h1>Welcome to Customer Portal</h1>;
 };
 
+const WelcomeMessage: React.FC = () => {
+  const [currentDateTime, setCurrentDateTime] = useState(new Date());
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setCurrentDateTime(new Date());
+    }, 1000);
+
+    return () => clearInterval(interval);
+  }, []);
+
+  return (
+    <div>
+      <h2>Welcome to the Customer Portal!</h2>
+      <p>Current Date and Time: {currentDateTime.toLocaleString()}</p>
+    </div>
+  );
+};
+
 const UserList: React.FC = () => {
   const [users, setUsers] = useState([]);
 
@@ -48,6 +67,7 @@ const App: React.FC = () => {
         </button>
       </header>
       <main>
+        <WelcomeMessage />
         <Header />
         <UserList />
       </main>
