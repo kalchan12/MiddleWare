@@ -25,6 +25,7 @@ const WelcomeMessage: React.FC = () => {
 
 const UserList: React.FC = () => {
   const [users, setUsers] = useState([]);
+  const [searchTerm, setSearchTerm] = useState('');
 
   useEffect(() => {
     const fetchUsers = async () => {
@@ -40,11 +41,21 @@ const UserList: React.FC = () => {
     fetchUsers();
   }, []);
 
+  const filteredUsers = users.filter((user: any) =>
+    user.name.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
   return (
     <div>
       <h2>User List</h2>
+      <input
+        type="text"
+        placeholder="Search users..."
+        value={searchTerm}
+        onChange={(e) => setSearchTerm(e.target.value)}
+      />
       <ul>
-        {users.map((user: any) => (
+        {filteredUsers.map((user: any) => (
           <li key={user.id}>{user.name} - {user.email}</li>
         ))}
       </ul>
