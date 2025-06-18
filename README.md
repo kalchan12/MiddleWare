@@ -1,28 +1,54 @@
-                          
-| No. | Name                 | ID                | Github Username     | 
-|-----|---------------------|--------------------|----------------------
-| 1   | Dimtsekal Chala     |  UGE/24170/13      | Kalchan12           |
-| 2   | Yerosen Addisu      | UGE/24157/13       | yerosenaddisu       |
-| 3   | Tigist Dereje       |  UGE/24140/13      | tigist22            |
-| 4   | Seble Kifle         | UGE/24137/13       | seble27             |
-| 5   | Eyerus Million      |  UGE/24075/13      | Jerusalem22         |
-| 6   | Mihiret Sisay       |  UGE/24152/13      | Mihiretab           |
+# React + TypeScript + Vite
 
-# Middleware-Integration Monorepo
-This Project is about creating Middleware for our CSE Uni Project
-## Structure
-- `/apps/web` — Frontend app (placeholder)
-- `/apps/admin` — Optional second frontend (placeholder)
-- `/packages/middleware` — Express + PostgreSQL API (TypeScript)
-- `/packages/config` — Shared ESLint + TypeScript config
-- `/packages/ui` — Shared UI components (optional, placeholder)
+This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
 
-## Getting Started
-1. Copy `.env` in `packages/middleware` and set your Postgres credentials.
-2. Run `pnpm install` in the repo root.
-3. Run `pnpm --filter middleware dev` to start the API server.
+Currently, two official plugins are available:
 
-## API Endpoints
-- `GET /users` — fetch all users
-- `POST /users` — add a new user
-- `GET /analytics` — dummy analytics data
+- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) for Fast Refresh
+- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+
+## Expanding the ESLint configuration
+
+If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+
+```js
+export default tseslint.config({
+  extends: [
+    // Remove ...tseslint.configs.recommended and replace with this
+    ...tseslint.configs.recommendedTypeChecked,
+    // Alternatively, use this for stricter rules
+    ...tseslint.configs.strictTypeChecked,
+    // Optionally, add this for stylistic rules
+    ...tseslint.configs.stylisticTypeChecked,
+  ],
+  languageOptions: {
+    // other options...
+    parserOptions: {
+      project: ['./tsconfig.node.json', './tsconfig.app.json'],
+      tsconfigRootDir: import.meta.dirname,
+    },
+  },
+})
+```
+
+You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+
+```js
+// eslint.config.js
+import reactX from 'eslint-plugin-react-x'
+import reactDom from 'eslint-plugin-react-dom'
+
+export default tseslint.config({
+  plugins: {
+    // Add the react-x and react-dom plugins
+    'react-x': reactX,
+    'react-dom': reactDom,
+  },
+  rules: {
+    // other rules...
+    // Enable its recommended typescript rules
+    ...reactX.configs['recommended-typescript'].rules,
+    ...reactDom.configs.recommended.rules,
+  },
+})
+```
